@@ -1,0 +1,817 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IPL Auction 2025 — Command Center</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Rajdhani:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #05080f;
+    --surface: rgba(255,255,255,0.03);
+    --border: rgba(255,255,255,0.08);
+    --text: #e8eaf6;
+    --muted: #6b7280;
+    --danger: #ff3b5c;
+
+    --csk-gold: #f5b800;
+    --csk-glow: rgba(245,184,0,0.18);
+    --mi-blue: #004ba0;
+    --mi-gold: #d4a017;
+    --mi-glow: rgba(0,75,160,0.22);
+    --srh-orange: #f26522;
+    --srh-glow: rgba(242,101,34,0.2);
+    --rcb-red: #cc0000;
+    --rcb-gold: #e8b84b;
+    --rcb-glow: rgba(204,0,0,0.2);
+    --dc-navy: #0059a8;
+    --dc-silver: #b0bec5;
+    --dc-glow: rgba(0,89,168,0.2);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 500;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Animated BG */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 60% 40% at 20% 10%, rgba(245,184,0,0.04) 0%, transparent 60%),
+      radial-gradient(ellipse 50% 35% at 80% 80%, rgba(204,0,0,0.05) 0%, transparent 60%),
+      radial-gradient(ellipse 40% 30% at 50% 50%, rgba(0,89,168,0.04) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* Grid noise texture */
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.015'%3E%3Cpath d='M0 40L40 0H20L0 20M40 40V20L20 40'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .wrapper {
+    position: relative;
+    z-index: 1;
+    max-width: 1600px;
+    margin: 0 auto;
+    padding: 0 20px 40px;
+  }
+
+  /* ── HEADER ── */
+  header {
+    text-align: center;
+    padding: 40px 0 32px;
+    position: relative;
+  }
+
+  .header-badge {
+    display: inline-block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 3px;
+    color: var(--csk-gold);
+    border: 1px solid rgba(245,184,0,0.3);
+    padding: 4px 14px;
+    border-radius: 2px;
+    margin-bottom: 16px;
+    text-transform: uppercase;
+  }
+
+  header h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(48px, 8vw, 96px);
+    letter-spacing: 4px;
+    line-height: 1;
+    background: linear-gradient(135deg, #fff 0%, #f5b800 40%, #fff 70%, #cc0000 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 8px;
+  }
+
+  header p {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    color: var(--muted);
+    letter-spacing: 1px;
+  }
+
+  /* ── LAYOUT ── */
+  .layout {
+    display: grid;
+    grid-template-columns: 1fr 300px;
+    gap: 24px;
+    align-items: start;
+  }
+
+  .teams-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(520px, 1fr));
+    gap: 24px;
+  }
+
+  /* ── TEAM CARD ── */
+  .team-card {
+    border-radius: 16px;
+    border: 1px solid var(--border);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  .team-card:hover {
+    transform: translateY(-3px);
+  }
+
+  /* CSK */
+  .card-csk {
+    background: linear-gradient(135deg, rgba(245,184,0,0.08) 0%, rgba(255,255,255,0.03) 50%, rgba(245,184,0,0.05) 100%);
+    box-shadow: 0 0 40px var(--csk-glow), inset 0 1px 0 rgba(245,184,0,0.2);
+    border-color: rgba(245,184,0,0.25);
+  }
+  .card-csk:hover { box-shadow: 0 8px 60px rgba(245,184,0,0.25), inset 0 1px 0 rgba(245,184,0,0.3); }
+
+  /* MI */
+  .card-mi {
+    background: linear-gradient(135deg, rgba(0,75,160,0.12) 0%, rgba(255,255,255,0.03) 50%, rgba(212,160,23,0.06) 100%);
+    box-shadow: 0 0 40px var(--mi-glow), inset 0 1px 0 rgba(0,75,160,0.3);
+    border-color: rgba(0,75,160,0.35);
+  }
+  .card-mi:hover { box-shadow: 0 8px 60px rgba(0,75,160,0.3), inset 0 1px 0 rgba(212,160,23,0.2); }
+
+  /* SRH */
+  .card-srh {
+    background: linear-gradient(135deg, rgba(242,101,34,0.1) 0%, rgba(255,255,255,0.03) 50%, rgba(220,50,0,0.07) 100%);
+    box-shadow: 0 0 40px var(--srh-glow), inset 0 1px 0 rgba(242,101,34,0.2);
+    border-color: rgba(242,101,34,0.3);
+  }
+  .card-srh:hover { box-shadow: 0 8px 60px rgba(242,101,34,0.28), inset 0 1px 0 rgba(242,101,34,0.3); }
+
+  /* RCB */
+  .card-rcb {
+    background: linear-gradient(135deg, rgba(204,0,0,0.1) 0%, rgba(255,255,255,0.03) 50%, rgba(232,184,75,0.06) 100%);
+    box-shadow: 0 0 40px var(--rcb-glow), inset 0 1px 0 rgba(204,0,0,0.2);
+    border-color: rgba(204,0,0,0.3);
+  }
+  .card-rcb:hover { box-shadow: 0 8px 60px rgba(204,0,0,0.28), inset 0 1px 0 rgba(232,184,75,0.2); }
+
+  /* DC */
+  .card-dc {
+    background: linear-gradient(135deg, rgba(0,89,168,0.1) 0%, rgba(255,255,255,0.03) 50%, rgba(176,190,197,0.06) 100%);
+    box-shadow: 0 0 40px var(--dc-glow), inset 0 1px 0 rgba(0,89,168,0.2);
+    border-color: rgba(0,89,168,0.3);
+  }
+  .card-dc:hover { box-shadow: 0 8px 60px rgba(0,89,168,0.28), inset 0 1px 0 rgba(176,190,197,0.2); }
+
+  /* ── TEAM HEADER ── */
+  .team-header {
+    padding: 20px 24px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    border-bottom: 1px solid var(--border);
+    flex-wrap: wrap;
+  }
+
+  .team-identity {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .team-logo {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 18px;
+    flex-shrink: 0;
+    border: 2px solid;
+  }
+  .logo-csk { background: rgba(245,184,0,0.15); color: var(--csk-gold); border-color: var(--csk-gold); }
+  .logo-mi  { background: rgba(0,75,160,0.2); color: #6eb3ff; border-color: #004ba0; }
+  .logo-srh { background: rgba(242,101,34,0.15); color: var(--srh-orange); border-color: var(--srh-orange); }
+  .logo-rcb { background: rgba(204,0,0,0.15); color: #ff6060; border-color: var(--rcb-red); }
+  .logo-dc  { background: rgba(0,89,168,0.15); color: #7ab8ff; border-color: var(--dc-navy); }
+
+  .team-name {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px;
+    letter-spacing: 1.5px;
+    line-height: 1.1;
+  }
+  .team-abbr {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 3px;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+
+  .purse-display {
+    text-align: right;
+    flex-shrink: 0;
+  }
+
+  .purse-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+
+  .purse-values {
+    display: flex;
+    gap: 16px;
+    align-items: baseline;
+  }
+
+  .purse-total {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    color: var(--muted);
+  }
+
+  .purse-remaining {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 28px;
+    letter-spacing: 1px;
+    line-height: 1;
+    transition: color 0.3s ease;
+  }
+  .purse-remaining.safe { color: #4ade80; }
+  .purse-remaining.warn { color: #facc15; }
+  .purse-remaining.danger { color: var(--danger); }
+
+  /* ── TABLE ── */
+  .table-wrap {
+    padding: 16px 16px 8px;
+    overflow-x: auto;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+  }
+
+  thead th {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--muted);
+    text-transform: uppercase;
+    padding: 6px 10px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+  }
+
+  tbody tr {
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    transition: background 0.2s;
+  }
+  tbody tr:hover { background: rgba(255,255,255,0.03); }
+  tbody tr:last-child { border-bottom: none; }
+
+  td {
+    padding: 6px 6px;
+    vertical-align: middle;
+  }
+
+  td.sno {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    text-align: center;
+    width: 32px;
+  }
+
+  input[type="text"], input[type="number"], select {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 6px;
+    color: var(--text);
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    padding: 6px 10px;
+    width: 100%;
+    outline: none;
+    transition: border-color 0.2s, background 0.2s;
+  }
+
+  input[type="text"]:focus, input[type="number"]:focus, select:focus {
+    border-color: rgba(255,255,255,0.3);
+    background: rgba(255,255,255,0.08);
+  }
+
+  input[type="number"] { width: 80px; }
+
+  select {
+    cursor: pointer;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236b7280' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 8px center;
+    padding-right: 28px;
+    font-size: 13px;
+  }
+
+  option { background: #1a1f2e; }
+
+  /* Team-colored focus states */
+  .card-csk input:focus, .card-csk select:focus { border-color: rgba(245,184,0,0.5); }
+  .card-mi  input:focus, .card-mi  select:focus { border-color: rgba(0,75,160,0.7); }
+  .card-srh input:focus, .card-srh select:focus { border-color: rgba(242,101,34,0.5); }
+  .card-rcb input:focus, .card-rcb select:focus { border-color: rgba(204,0,0,0.5); }
+  .card-dc  input:focus, .card-dc  select:focus { border-color: rgba(0,89,168,0.5); }
+
+  /* ── CARD FOOTER ── */
+  .card-footer {
+    padding: 12px 24px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-top: 1px solid var(--border);
+    margin-top: 4px;
+  }
+
+  .spent-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  .spent-value {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    color: var(--text);
+  }
+
+  .btn-reset {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    padding: 7px 18px;
+    border-radius: 6px;
+    border: 1px solid rgba(255,255,255,0.15);
+    background: rgba(255,255,255,0.06);
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-reset:hover {
+    background: rgba(255,80,80,0.12);
+    border-color: rgba(255,80,80,0.35);
+    color: #ff8080;
+  }
+
+  /* ── SIDEBAR ── */
+  .sidebar {
+    position: sticky;
+    top: 24px;
+  }
+
+  .sidebar-card {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    backdrop-filter: blur(20px);
+    overflow: hidden;
+  }
+
+  .sidebar-header {
+    padding: 20px 20px 14px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .sidebar-header h2 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px;
+    letter-spacing: 2px;
+  }
+
+  .sidebar-header p {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--muted);
+    margin-top: 3px;
+  }
+
+  .rank-list {
+    padding: 12px 0;
+  }
+
+  .rank-item {
+    padding: 10px 20px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    transition: background 0.2s;
+    animation: fadeSlide 0.4s ease both;
+  }
+  .rank-item:last-child { border-bottom: none; }
+  .rank-item:hover { background: rgba(255,255,255,0.03); }
+
+  @keyframes fadeSlide {
+    from { opacity: 0; transform: translateX(10px); }
+    to   { opacity: 1; transform: translateX(0); }
+  }
+
+  .rank-pos {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 28px;
+    width: 30px;
+    text-align: center;
+    flex-shrink: 0;
+  }
+  .rank-pos.gold   { color: #f5b800; }
+  .rank-pos.silver { color: #9ca3af; }
+  .rank-pos.bronze { color: #cd7c3e; }
+  .rank-pos.other  { color: var(--muted); }
+
+  .rank-info { flex: 1; min-width: 0; }
+
+  .rank-team {
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .rank-bar-wrap {
+    width: 100%;
+    height: 4px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 2px;
+    margin-top: 5px;
+    overflow: hidden;
+  }
+
+  .rank-bar {
+    height: 100%;
+    border-radius: 2px;
+    transition: width 0.5s ease;
+  }
+
+  .rank-score {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    font-weight: 600;
+    flex-shrink: 0;
+  }
+
+  /* Sidebar totals */
+  .sidebar-totals {
+    padding: 14px 20px 16px;
+    border-top: 1px solid var(--border);
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  .stat-box {
+    background: rgba(255,255,255,0.04);
+    border-radius: 8px;
+    padding: 10px 12px;
+    text-align: center;
+  }
+
+  .stat-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 2px;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+
+  .stat-value {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px;
+    letter-spacing: 1px;
+    margin-top: 2px;
+  }
+
+  /* ── GLOBAL RESET BTN ── */
+  .global-actions {
+    text-align: center;
+    margin-bottom: 28px;
+  }
+
+  .btn-global-reset {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 18px;
+    letter-spacing: 3px;
+    padding: 10px 40px;
+    border-radius: 8px;
+    border: 1px solid rgba(255,80,80,0.3);
+    background: rgba(255,80,80,0.08);
+    color: #ff8080;
+    cursor: pointer;
+    transition: all 0.3s;
+  }
+  .btn-global-reset:hover {
+    background: rgba(255,80,80,0.18);
+    border-color: rgba(255,80,80,0.5);
+    box-shadow: 0 0 20px rgba(255,80,80,0.15);
+  }
+
+  /* ── ROLE BADGE COLORS ── */
+  select.role-select option[value="Batsman"]      { color: #4ade80; }
+  select.role-select option[value="Bowler"]        { color: #60a5fa; }
+  select.role-select option[value="All-Rounder"]   { color: #f5b800; }
+  select.role-select option[value="Wicket-Keeper"] { color: #c084fc; }
+
+  /* Mobile responsive */
+  @media (max-width: 900px) {
+    .layout { grid-template-columns: 1fr; }
+    .sidebar { position: static; }
+    .teams-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="wrapper">
+
+  <header>
+    <div class="header-badge">⚡ Live Auction Command Center</div>
+    <h1>IPL AUCTION 2025</h1>
+    <p>MANAGE · TRACK · DOMINATE — 5 TEAMS · 55 SLOTS · ₹500 CR TOTAL POOL</p>
+  </header>
+
+  <div class="global-actions">
+    <button class="btn-global-reset" onclick="resetAll()">⟳ RESET ALL TEAMS</button>
+  </div>
+
+  <div class="layout">
+    <div class="teams-grid" id="teamsGrid"></div>
+    <div class="sidebar">
+      <div class="sidebar-card">
+        <div class="sidebar-header">
+          <h2>🏆 RANKINGS</h2>
+          <p>BY TOTAL CREDIT SPENT</p>
+        </div>
+        <div class="rank-list" id="rankList"></div>
+        <div class="sidebar-totals">
+          <div class="stat-box">
+            <div class="stat-label">Total Spent</div>
+            <div class="stat-value" id="totalSpent" style="color:#f5b800">0 Cr</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-label">Players Bought</div>
+            <div class="stat-value" id="totalPlayers" style="color:#4ade80">0</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const TEAMS = [
+  {
+    id: 'csk',
+    name: 'Chennai Super Kings',
+    abbr: 'CSK',
+    cardClass: 'card-csk',
+    logoClass: 'logo-csk',
+    accentColor: '#f5b800',
+    barColor: 'linear-gradient(90deg,#f5b800,#ffe066)',
+    scoreColor: '#f5b800',
+  },
+  {
+    id: 'mi',
+    name: 'Mumbai Indians',
+    abbr: 'MI',
+    cardClass: 'card-mi',
+    logoClass: 'logo-mi',
+    accentColor: '#6eb3ff',
+    barColor: 'linear-gradient(90deg,#004ba0,#d4a017)',
+    scoreColor: '#6eb3ff',
+  },
+  {
+    id: 'srh',
+    name: 'Sunrisers Hyderabad',
+    abbr: 'SRH',
+    cardClass: 'card-srh',
+    logoClass: 'logo-srh',
+    accentColor: '#f26522',
+    barColor: 'linear-gradient(90deg,#f26522,#ff9966)',
+    scoreColor: '#f26522',
+  },
+  {
+    id: 'rcb',
+    name: 'Royal Challengers Bengaluru',
+    abbr: 'RCB',
+    cardClass: 'card-rcb',
+    logoClass: 'logo-rcb',
+    accentColor: '#ff6060',
+    barColor: 'linear-gradient(90deg,#cc0000,#e8b84b)',
+    scoreColor: '#ff6060',
+  },
+  {
+    id: 'dc',
+    name: 'Delhi Capitals',
+    abbr: 'DC',
+    cardClass: 'card-dc',
+    logoClass: 'logo-dc',
+    accentColor: '#7ab8ff',
+    barColor: 'linear-gradient(90deg,#0059a8,#b0bec5)',
+    scoreColor: '#7ab8ff',
+  },
+];
+
+const TOTAL_PURSE = 100;
+const ROWS = 11;
+const ROLES = ['', 'Batsman', 'Bowler', 'All-Rounder', 'Wicket-Keeper'];
+
+function buildDashboard() {
+  const grid = document.getElementById('teamsGrid');
+  grid.innerHTML = '';
+
+  TEAMS.forEach(team => {
+    const card = document.createElement('div');
+    card.className = `team-card ${team.cardClass}`;
+    card.id = `card-${team.id}`;
+
+    let rows = '';
+    for (let i = 1; i <= ROWS; i++) {
+      rows += `
+        <tr>
+          <td class="sno">${i}</td>
+          <td><input type="text" placeholder="Player name" id="${team.id}-name-${i}" autocomplete="off"></td>
+          <td><input type="number" placeholder="0" min="0" max="100" id="${team.id}-credit-${i}" oninput="updatePurse('${team.id}')" step="0.5"></td>
+          <td>
+            <select class="role-select" id="${team.id}-role-${i}">
+              ${ROLES.map(r => `<option value="${r}">${r || '— Role —'}</option>`).join('')}
+            </select>
+          </td>
+        </tr>`;
+    }
+
+    card.innerHTML = `
+      <div class="team-header">
+        <div class="team-identity">
+          <div class="team-logo ${team.logoClass}">${team.abbr}</div>
+          <div>
+            <div class="team-name">${team.name}</div>
+            <div class="team-abbr">${team.abbr} · IPL 2025</div>
+          </div>
+        </div>
+        <div class="purse-display">
+          <div class="purse-label">Purse Tracker</div>
+          <div class="purse-values">
+            <div class="purse-total">₹${TOTAL_PURSE} Cr</div>
+            <div class="purse-remaining safe" id="${team.id}-remaining">₹${TOTAL_PURSE} Cr</div>
+          </div>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Player Name</th>
+              <th>Credits (Cr)</th>
+              <th>Role</th>
+            </tr>
+          </thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>
+      <div class="card-footer">
+        <div>
+          <div class="spent-label">TOTAL SPENT</div>
+          <div class="spent-value" id="${team.id}-spent" style="color:${team.accentColor}">₹0 Cr</div>
+        </div>
+        <button class="btn-reset" onclick="resetTeam('${team.id}')">↺ Reset Team</button>
+      </div>`;
+
+    grid.appendChild(card);
+  });
+
+  updateRankings();
+}
+
+function updatePurse(teamId) {
+  let spent = 0;
+  for (let i = 1; i <= ROWS; i++) {
+    const val = parseFloat(document.getElementById(`${teamId}-credit-${i}`)?.value) || 0;
+    spent += val;
+  }
+
+  const remaining = TOTAL_PURSE - spent;
+  const remEl = document.getElementById(`${teamId}-remaining`);
+  const spentEl = document.getElementById(`${teamId}-spent`);
+
+  remEl.textContent = `₹${remaining.toFixed(1)} Cr`;
+  spentEl.textContent = `₹${spent.toFixed(1)} Cr`;
+
+  remEl.className = 'purse-remaining';
+  if (remaining < 0) remEl.classList.add('danger');
+  else if (remaining < 20) remEl.classList.add('warn');
+  else remEl.classList.add('safe');
+
+  updateRankings();
+}
+
+function getTeamSpent(teamId) {
+  let spent = 0;
+  for (let i = 1; i <= ROWS; i++) {
+    const val = parseFloat(document.getElementById(`${teamId}-credit-${i}`)?.value) || 0;
+    spent += val;
+  }
+  return spent;
+}
+
+function getPlayerCount(teamId) {
+  let count = 0;
+  for (let i = 1; i <= ROWS; i++) {
+    const name = (document.getElementById(`${teamId}-name-${i}`)?.value || '').trim();
+    if (name) count++;
+  }
+  return count;
+}
+
+function updateRankings() {
+  const scores = TEAMS.map(t => ({
+    ...t,
+    spent: getTeamSpent(t.id),
+    players: getPlayerCount(t.id),
+  })).sort((a, b) => b.spent - a.spent);
+
+  const maxSpent = Math.max(...scores.map(s => s.spent), 1);
+
+  const rankList = document.getElementById('rankList');
+  const posClasses = ['gold', 'silver', 'bronze', 'other', 'other'];
+  const medals = ['①', '②', '③', '④', '⑤'];
+
+  rankList.innerHTML = scores.map((s, idx) => `
+    <div class="rank-item" style="animation-delay:${idx * 0.06}s">
+      <div class="rank-pos ${posClasses[idx]}">${medals[idx]}</div>
+      <div class="rank-info">
+        <div class="rank-team">${s.name}</div>
+        <div class="rank-bar-wrap">
+          <div class="rank-bar" style="width:${maxSpent > 0 ? (s.spent/maxSpent*100) : 0}%; background:${s.barColor}"></div>
+        </div>
+      </div>
+      <div class="rank-score" style="color:${s.accentColor}">₹${s.spent.toFixed(1)}</div>
+    </div>
+  `).join('');
+
+  const totalSpent = scores.reduce((a, b) => a + b.spent, 0);
+  const totalPlayers = scores.reduce((a, b) => a + b.players, 0);
+
+  document.getElementById('totalSpent').textContent = `₹${totalSpent.toFixed(1)} Cr`;
+  document.getElementById('totalPlayers').textContent = totalPlayers;
+}
+
+function resetTeam(teamId) {
+  for (let i = 1; i <= ROWS; i++) {
+    const nameEl = document.getElementById(`${teamId}-name-${i}`);
+    const creditEl = document.getElementById(`${teamId}-credit-${i}`);
+    const roleEl = document.getElementById(`${teamId}-role-${i}`);
+    if (nameEl) nameEl.value = '';
+    if (creditEl) creditEl.value = '';
+    if (roleEl) roleEl.value = '';
+  }
+  updatePurse(teamId);
+}
+
+function resetAll() {
+  if (!confirm('Reset all 5 teams? This cannot be undone.')) return;
+  TEAMS.forEach(t => resetTeam(t.id));
+}
+
+buildDashboard();
+</script>
+</body>
+</html>
